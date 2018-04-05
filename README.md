@@ -6,4 +6,4 @@ Implicit surfaces with OpenGL in Haskell.
 
 Goursat surface:
 
-![Imgur](https://i.imgur.com/u5rOXKQ.png)
+![Imgur](https://i.imgur.com/GLAfp20.png)

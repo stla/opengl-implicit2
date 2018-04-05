@@ -1,6 +1,6 @@
 module MarchingCubes.OpenGL
   where
-import           Graphics.Rendering.OpenGL.GL (Normal3 (..), Vertex3 (..))
+import           Graphics.Rendering.OpenGL.GL (Vertex3 (..))
 import           MarchingCubes.MarchingCubes  (Triangle)
 import           Utils.OpenGL                 (NTriangle, triangleNormal)
 
