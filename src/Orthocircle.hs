@@ -21,7 +21,7 @@ fOrthocircle a b (x,y,z) =
 
 trianglesOrthocircle :: Double -> Double -> Double -> [NTriangle]
 trianglesOrthocircle a b l =
-  let triangles = marchingCubes (fOrthocircle a b) l ((-1.6,1.6),(-1.6,1.6),(-1.6,1.6)) 100
+  let triangles = marchingCubes (fOrthocircle a b) l ((-1.3,1.3),(-1.3,1.3),(-1.3,1.3)) 100
   in map fromTriangle triangles
 
 display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -- rotations

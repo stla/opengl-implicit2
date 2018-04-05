@@ -7,3 +7,16 @@ Implicit surfaces with OpenGL in Haskell.
 Goursat surface:
 
 ![Imgur](https://i.imgur.com/GLAfp20.png)
+
+Heart:
+
+![Imgur](https://i.imgur.com/A7Wnd0N.png)
+
+Decocube:
+
+![Imgur](https://i.imgur.com/LncNYyC.png)
+
+Orthocircle:
+
+![Imgur](https://i.imgur.com/bON5pYx.png)
+

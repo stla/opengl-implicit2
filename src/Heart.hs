@@ -15,7 +15,7 @@ fHeart (x,y,z) = (2*x**2+y**2+z**2-1)**3 - x**2 * z**3/10 - y**2 * z**3
 
 trianglesHeart :: [NTriangle]
 trianglesHeart =
-  let triangles = marchingCubes fHeart 0 ((-4,4),(-4,4),(-4,4)) 200
+  let triangles = marchingCubes fHeart 0 ((-1,1),(-1.3,1.3),(-1.2,1.5)) 200
   in map fromTriangle triangles
 
 display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -- rotations

@@ -21,7 +21,7 @@ fDecocube a (x,y,z) =
 
 trianglesDecocube ::Double -> Double -> [NTriangle]
 trianglesDecocube a l =
-  let triangles = marchingCubes (fDecocube a) l ((-1.6,1.6),(-1.6,1.6),(-1.6,1.6)) 60
+  let triangles = marchingCubes (fDecocube a) l ((-1.4,1.4),(-1.4,1.4),(-1.4,1.4)) 100
   in map fromTriangle triangles
 
 display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -- rotations
