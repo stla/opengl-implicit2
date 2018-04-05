@@ -15,7 +15,7 @@ fBretzel5 (x,y,z) = ((x*x+y*y/4-1)*(x*x/4+y*y-1))**2 + z*z
 
 trianglesBretzel5 :: [NTriangle]
 trianglesBretzel5 =
-  let triangles = marchingCubes fBretzel5 0.1 ((-3,3),(-3,3),(-1,1)) 200
+  let triangles = marchingCubes fBretzel5 0.1 ((-2.95,2.95),(-2.95,2.95),(-0.95,0.95)) 200
   in map fromTriangle triangles
 
 display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -- rotations
@@ -35,7 +35,7 @@ display rot1 rot2 rot3 zoom = do
   rotate r2 $ Vector3 0 1 0
   rotate r3 $ Vector3 0 0 1
   renderPrimitive Triangles $ do
-    materialDiffuse Front $= red
+    materialDiffuse FrontAndBack $= red
     mapM_ drawTriangle triangles
   swapBuffers
   where
@@ -80,11 +80,11 @@ main = do
   _ <- createWindow "Bretzel 5"
   windowSize $= Size 500 500
   initialDisplayMode $= [RGBAMode, DoubleBuffered, WithDepthBuffer]
-  cullFace $= Just Back
+  --cullFace $= Just Back
   clearColor $= white
   materialAmbient Front $= white
   lighting $= Enabled
-  lightModelTwoSide $= Disabled
+  lightModelTwoSide $= Enabled
   light (Light 0) $= Enabled
   position (Light 0) $= Vertex4 0 0 (-100) 1
   ambient (Light 0) $= black
