@@ -23,3 +23,7 @@ Orthocircle:
 Bretzel:
 
 ![Imgur](https://i.imgur.com/1dXfOuS.png)
+
+Banchoff-Chmutov surface:
+
+![Imgur](https://i.imgur.com/WesZVvd.png)

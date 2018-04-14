@@ -28,6 +28,8 @@ library
                      , Heart
                      , Decocube
                      , Bretzel5
+                     , Balls
+                     , BanchoffChmutov4
   build-depends:       base >= 4.7 && < 5
                      , extra
                      , OpenGL
@@ -37,6 +39,7 @@ library
                      , array
                      , vector
                      , split
+                     , polynomial
   default-language:    Haskell2010
   other-extensions:    FlexibleContexts
                      , MultiParamTypeClasses
@@ -98,6 +101,30 @@ executable bretzel5
   hs-source-dirs:      src-exe
   main-is:             ExeBretzel5.hs
   ghc-options:         -fllvm -main-is ExeBretzel5
+  build-depends:       base >= 4.7 && < 5
+                     , opengl-implicit2
+  default-language:    Haskell2010
+
+executable balls
+  if flag(exe)
+    buildable: True
+  else
+    buildable: False
+  hs-source-dirs:      src-exe
+  main-is:             ExeBalls.hs
+  ghc-options:         -fllvm -main-is ExeBalls
+  build-depends:       base >= 4.7 && < 5
+                     , opengl-implicit2
+  default-language:    Haskell2010
+
+executable banchoffchmutov
+  if flag(exe)
+    buildable: True
+  else
+    buildable: False
+  hs-source-dirs:      src-exe
+  main-is:             ExeBanchoffChmutov4.hs
+  ghc-options:         -fllvm -main-is ExeBanchoffChmutov4
   build-depends:       base >= 4.7 && < 5
                      , opengl-implicit2
   default-language:    Haskell2010

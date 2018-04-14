@@ -34,7 +34,7 @@ faceType v nx ny level maxvol = foldr matricialSum v1 [v2,v3,v4]
   v4 = scaledMatrix 8 (minorMatrix v0 nx 1)
 
 levCells :: UArray (Int,Int,Int) Double -> Double -> Double
-         -> (([Int],[Int],[Int]), Vector Int)
+         -> ((Vector Int,Vector Int,Vector Int), Vector Int)
 levCells a level maxvol =
   ((v_i, v_j, v_k), UV.fromList $ concatMap snd cellsAndTypes)
   where
@@ -48,16 +48,20 @@ levCells a level maxvol =
     contourCells = fst intind
   cellsAndTypes = map f [1 .. (nz-1)]
   cells = concatMap fst cellsAndTypes
-  v_i = map ((+1) . (`mod` (nx-1))) cells
-  v_j = map ((+1) . (`mod` (ny-1)) . (`div` (nx-1))) cells
-  v_k = map ((+1) . (`div` ((nx-1)*(ny-1)))) cells
+  v_i = UV.fromList $ map ((+1) . (`mod` (nx-1))) cells
+  v_j = UV.fromList $ map ((+1) . (`mod` (ny-1)) . (`div` (nx-1))) cells
+  v_k = UV.fromList $ map ((+1) . (`div` ((nx-1)*(ny-1)))) cells
 
-getBasic :: [Int] -> UArray (Int,Int,Int) Double -> Double -> (([Int],[Int],[Int]), Vector Int)
+getBasic :: [Int] -> UArray (Int,Int,Int) Double -> Double 
+         -> ((Vector Int,Vector Int,Vector Int), Vector Int)
          -> ((Vector Double, (Vector Double,Vector Double,Vector Double)), [Int], [Int])
 getBasic r vol level ((v_i,v_j,v_k),v_t) =
   ((values, (info1, info2, info3)), p1, cases)
   where
-  cube_1 = transpose [v_i,v_j,v_k]
+  v_i' = [v_i UV.! (i-1) | i <- r]
+  v_j' = [v_j UV.! (i-1) | i <- r]
+  v_k' = [v_k UV.! (i-1) | i <- r]
+  cube_1 = transpose [v_i',v_j',v_k']
   index :: [[Int]]
   index = [ [0, 0, 0],
             [1, 0, 0],
@@ -67,7 +71,7 @@ getBasic r vol level ((v_i,v_j,v_k),v_t) =
             [1, 0, 1],
             [1, 1, 1],
             [0, 1, 1] ]
-  k1 = concat $ replicate (length v_i) index
+  k1 = concat $ replicate (length r) index
   k2 = concatMap (replicate 8) cube_1
   cube_co = zipWith (zipWith (+)) k1 k2
   values = UV.fromList $
@@ -99,6 +103,8 @@ getPoints edges p1 (values, (info1, info2, info3)) = out
   lambda = map (realToFrac . floor' . (/9) . fromIntegral) x1
   mu = map (\x -> 1-x) lambda
   average w w' = zipWith (+) (zipWith (*) mu w) (zipWith (*) lambda w')
+  average7 w = zipWith (+) (zipWith (*) mu w) lambda 
+  average8 w = zipWith (-) (zipWith (*) mu w) lambda 
   p1x1 = zipWith (+) p1 x1
   p1x2 = zipWith (+) p1 x2
   v1  = [info1 UV.! (i-2) | i <- p1x1]
@@ -114,17 +120,15 @@ getPoints edges p1 (values, (info1, info2, info3)) = out
   v6  = [info3 UV.! (i-2) | i <- p1x2]
   v6' = [info3 UV.! (i+4) | i <- p1]
   v7  = [values UV.! (i-2) | i <- p1x1]
-  v7' = lambda
   v8  = [values UV.! (i-2) | i <- p1x2]
-  v8' = map negate lambda
   out = [ average v1 v1'
         , average v2 v2'
         , average v3 v3'
         , average v4 v4'
         , average v5 v5'
         , average v6 v6'
-        , average v7 v7'
-        , average v8 v8'
+        , average7 v7 
+        , average8 v8 
         ]
 
 calPoint :: [[Double]] -> [[Double]]
@@ -142,7 +146,7 @@ preRender1 cases p1 information = transpose $ calPoint info
   info = getPoints edges p1rep information
 
 getTriangles1 :: [Int] -> UArray (Int,Int,Int) Double -> Double
-              -> (([Int],[Int],[Int]), Vector Int) -> [[Double]]
+              -> ((Vector Int,Vector Int,Vector Int), Vector Int) -> [[Double]]
 getTriangles1 r vol level v = preRender1 cases p1 information
   where
   basics = getBasic r vol level v

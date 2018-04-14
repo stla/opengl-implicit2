@@ -1,4 +1,4 @@
-module Bretzel5
+module Balls
   ( main )
   where
 import           Data.IORef
@@ -10,36 +10,44 @@ import           Utils.OpenGL
 red :: Color4 GLfloat
 red = Color4 1 0 0 1
 
-fBretzel5 :: XYZ -> Double
-fBretzel5 (x,y,z) = ((x*x+y*y/4-1)*(x*x/4+y*y-1))^2 + z*z
+fballs :: XYZ -> Double
+fballs (x,y,z) =
+  1/(x2+y2+z2) + 1/(x2+y2'+z2) + 1/(x2'+y2+z2)
+  where
+  x2 = x*x
+  y2 = y*y
+  z2 = z*z
+  x2' = (x-1)*(x-1)
+  y2' = (y-1)*(y-1)
 
-trianglesBretzel5 :: [NTriangle]
-trianglesBretzel5 =
-  let triangles = marchingCubes fBretzel5 0.1 ((-2.5,2.5),(-2.5,2.5),(-0.5,0.5)) 200
+trianglesBalls :: Double -> [NTriangle]
+trianglesBalls l =
+  let triangles = marchingCubes fballs l ((-1,2),(-1,2),(-1,1)) 100
   in map fromTriangle triangles
 
 display :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -- rotations
+        -> IORef Double  -- isolevel
         -> IORef Double  -- zoom
         -> DisplayCallback
-display rot1 rot2 rot3 zoom = do
+display rot1 rot2 rot3 l zoom = do
   clear [ColorBuffer, DepthBuffer]
   r1 <- get rot1
   r2 <- get rot2
   r3 <- get rot3
   z <- get zoom
   (_, size) <- get viewport
-  let triangles = trianglesBretzel5
+  l' <- get l
+  let triangles = trianglesBalls l'
   loadIdentity
   resize z size
   rotate r1 $ Vector3 1 0 0
   rotate r2 $ Vector3 0 1 0
   rotate r3 $ Vector3 0 0 1
-  renderPrimitive Triangles $ do
-    materialDiffuse FrontAndBack $= red
-    mapM_ drawTriangle triangles
+  renderPrimitive Triangles $ mapM_ drawTriangle triangles
   swapBuffers
   where
     drawTriangle ((v1,v2,v3), norm) = do
+      materialDiffuse FrontAndBack $= red
       normal norm
       vertex v1
       vertex v2
@@ -51,16 +59,17 @@ resize zoom s@(Size w h) = do
   matrixMode $= Projection
   loadIdentity
   perspective 45.0 (w'/h') 1.0 100.0
-  lookAt (Vertex3 0 0 (-6+zoom)) (Vertex3 0 0 0) (Vector3 0 1 0)
+  lookAt (Vertex3 0 0 (-5+zoom)) (Vertex3 0 0 0) (Vector3 0 1 0)
   matrixMode $= Modelview 0
   where
     w' = realToFrac w
     h' = realToFrac h
 
 keyboard :: IORef GLfloat -> IORef GLfloat -> IORef GLfloat -- rotations
+         -> IORef Double -- isolevel
          -> IORef Double -- zoom
          -> KeyboardCallback
-keyboard rot1 rot2 rot3 zoom c _ = do
+keyboard rot1 rot2 rot3 l zoom c _ = do
   case c of
     'e' -> rot1 $~! subtract 2
     'r' -> rot1 $~! (+ 2)
@@ -70,19 +79,21 @@ keyboard rot1 rot2 rot3 zoom c _ = do
     'i' -> rot3 $~! (+ 2)
     'm' -> zoom $~! (+ 1)
     'l' -> zoom $~! subtract 1
+    'h' -> l $~! (+ 0.1)
+    'n' -> l $~! subtract 0.1
     'q' -> leaveMainLoop
     _   -> return ()
   postRedisplay Nothing
 
+
 main :: IO ()
 main = do
   _ <- getArgsAndInitialize
-  _ <- createWindow "Bretzel 5"
+  _ <- createWindow "Balls"
   windowSize $= Size 500 500
   initialDisplayMode $= [RGBAMode, DoubleBuffered, WithDepthBuffer]
-  --cullFace $= Just Back
   clearColor $= white
-  materialAmbient Front $= white
+  materialAmbient FrontAndBack $= black
   lighting $= Enabled
   lightModelTwoSide $= Enabled
   light (Light 0) $= Enabled
@@ -96,14 +107,17 @@ main = do
   rot2 <- newIORef 0.0
   rot3 <- newIORef 0.0
   zoom <- newIORef 0.0
-  displayCallback $= display rot1 rot2 rot3 zoom
+  l <- newIORef 11.0
+  displayCallback $= display rot1 rot2 rot3 l zoom
   reshapeCallback $= Just (resize 0)
-  keyboardCallback $= Just (keyboard rot1 rot2 rot3 zoom)
+  keyboardCallback $= Just (keyboard rot1 rot2 rot3 l zoom)
   idleCallback $= Nothing
-  putStrLn "*** Heart ***\n\
+  putStrLn "*** Balls ***\n\
         \    To quit, press q.\n\
         \    Scene rotation:\n\
         \        e, r, t, y, u, i\n\
         \    Zoom: l, m\n\
+        \    Increase/decrease isolevel:\n\
+        \        h, n\n\
         \"
   mainLoop
