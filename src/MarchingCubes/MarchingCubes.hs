@@ -1,5 +1,5 @@
 module MarchingCubes.MarchingCubes
-  (XYZ, Triangle, marchingCubes)
+  (XYZ, Triangle, Voxel, marchingCubes, makeVoxel, computeContour3d')
   where
 import           Data.Array.Unboxed     (UArray, amap, array, bounds, elems,
                                          (!))
@@ -52,7 +52,7 @@ levCells a level maxvol =
   v_j = UV.fromList $ map ((+1) . (`mod` (ny-1)) . (`div` (nx-1))) cells
   v_k = UV.fromList $ map ((+1) . (`div` ((nx-1)*(ny-1)))) cells
 
-getBasic :: [Int] -> UArray (Int,Int,Int) Double -> Double 
+getBasic :: [Int] -> UArray (Int,Int,Int) Double -> Double
          -> ((Vector Int,Vector Int,Vector Int), Vector Int)
          -> ((Vector Double, (Vector Double,Vector Double,Vector Double)), [Int], [Int])
 getBasic r vol level ((v_i,v_j,v_k),v_t) =
@@ -103,8 +103,8 @@ getPoints edges p1 (values, (info1, info2, info3)) = out
   lambda = map (realToFrac . floor' . (/9) . fromIntegral) x1
   mu = map (\x -> 1-x) lambda
   average w w' = zipWith (+) (zipWith (*) mu w) (zipWith (*) lambda w')
-  average7 w = zipWith (+) (zipWith (*) mu w) lambda 
-  average8 w = zipWith (-) (zipWith (*) mu w) lambda 
+  average7 w = zipWith (+) (zipWith (*) mu w) lambda
+  average8 w = zipWith (-) (zipWith (*) mu w) lambda
   p1x1 = zipWith (+) p1 x1
   p1x2 = zipWith (+) p1 x2
   v1  = [info1 UV.! (i-2) | i <- p1x1]
@@ -127,8 +127,8 @@ getPoints edges p1 (values, (info1, info2, info3)) = out
         , average v4 v4'
         , average v5 v5'
         , average v6 v6'
-        , average7 v7 
-        , average8 v8 
+        , average7 v7
+        , average8 v8
         ]
 
 calPoint :: [[Double]] -> [[Double]]
@@ -165,6 +165,7 @@ computeContour3d vol maxvol' level =
   r = map (+1) $ findIndices (`elem` [2, 3, 6, 9, 10, 12, 15]) tcase
   triangles = if not $ null r then getTriangles1 r vol level v else [[]]
 
+
 marchingCubes :: ((Double,Double,Double) -> Double)   -- function
               -> Double            -- isolevel
               -> ((Double,Double),(Double,Double),(Double,Double))  -- bounds
@@ -191,3 +192,45 @@ marchingCubes fun level xyzbounds subd = map (rescale xyzbounds) triangles
     sx' = s' xm xM
     sy' = s' ym yM
     sz' = s' zm zM
+
+-- -- -- -- -- -- --
+type Voxel = (UArray (Int,Int,Int) Double,
+              ((Double,Double),(Double,Double),(Double,Double)),
+              (Int,Int,Int))
+
+makeVoxel :: ((Double,Double,Double) -> Double)
+          -> ((Double,Double), (Double,Double), (Double,Double))
+          -> (Int, Int, Int) -> Voxel
+makeVoxel f ((xm,xM),(ym,yM),(zm,zM)) (nx,ny,nz) =
+  ( array ((1,1,1),(nx,ny,nz))
+          [((i,j,k), f (x,y,z)) | i <- [1..nx], j <- [1..ny], k <- [1..nz],
+                                  let x = sx i,
+                                  let y = sy j,
+                                  let z = sz k]
+  , ((xm,xM),(ym,yM),(zm,zM))
+  , (nx,ny,nz) )
+  where
+  s a b n l = a + (b-a) * fromIntegral (l-1) / fromIntegral (n-1)
+  sx = s xm xM nx
+  sy = s ym yM ny
+  sz = s zm zM nz
+
+computeContour3d' :: Voxel
+                  -> Maybe Double
+                  -> Double
+                  -> [Triangle]
+computeContour3d' (voxel, ((xm,xM),(ym,yM),(zm,zM)), (nx,ny,nz)) voxmax level =
+  map rescale (toTriangles triangles)
+  where
+  maxvox = fromMaybe (maximum (elems voxel)) voxmax
+  v = levCells voxel level maxvox
+  tcase = [caseRotationFlip0 UV.! i | i <- UV.toList $ snd v]
+  r = map (+1) $ findIndices (`elem` [2, 3, 6, 9, 10, 12, 15]) tcase
+  triangles = if not $ null r then getTriangles1 r voxel level v else [[]]
+  rescale ((x1,y1,z1),(x2,y2,z2),(x3,y3,z3)) =
+    ((sx x1, sy y1, sz z1), (sx x2, sy y2, sz z2), (sx x3, sy y3, sz z3))
+    where
+    s a b n u = a + (b-a) * u / fromIntegral (n-1)
+    sx = s xm xM nx
+    sy = s ym yM ny
+    sz = s zm zM nz

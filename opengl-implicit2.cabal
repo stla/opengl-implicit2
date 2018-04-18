@@ -30,6 +30,8 @@ library
                      , Bretzel5
                      , Balls
                      , BanchoffChmutov4
+                     , Bretzel5_2
+                     , Goursat_2
   build-depends:       base >= 4.7 && < 5
                      , extra
                      , OpenGL
@@ -132,4 +134,3 @@ executable banchoffchmutov
 source-repository head
   type:     git
   location: https://github.com/stla/opengl-implicit2
-
