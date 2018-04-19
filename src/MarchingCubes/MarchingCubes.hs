@@ -149,10 +149,7 @@ getTriangles1 :: [Int] -> UArray (Int,Int,Int) Double -> Double
               -> ((Vector Int,Vector Int,Vector Int), Vector Int) -> [[Double]]
 getTriangles1 r vol level v = preRender1 cases p1 information
   where
-  basics = getBasic r vol level v
-  information = fst3 basics
-  p1 = snd3 basics
-  cases = thd3 basics
+  (information, p1, cases) = getBasic r vol level v
 
 computeContour3d :: UArray (Int,Int,Int) Double -> Maybe Double -> Double
                  -> [Triangle]

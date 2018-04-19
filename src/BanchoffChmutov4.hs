@@ -1,9 +1,9 @@
 module BanchoffChmutov4 where
-import Math.Polynomial.Chebyshev (evalT)
 import           Data.IORef
 import           Graphics.Rendering.OpenGL.GL
 import           Graphics.UI.GLUT
 import           MarchingCubes
+import           Math.Polynomial.Chebyshev    (evalT)
 import           Utils.OpenGL
 
 red :: Color4 GLfloat

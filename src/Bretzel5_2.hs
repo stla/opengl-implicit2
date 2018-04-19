@@ -29,10 +29,13 @@ voxel :: Voxel
 voxel = makeVoxel fBretz ((-2.5,2.5),(-2.5,2.5),(-0.5,0.5))
                          (200, 200, 200)
 
+voxmax :: Double
+voxmax = voxelMax voxel
+
 trianglesBretz :: Double -> [NTriangle]
 trianglesBretz level = map fromTriangle triangles
   where
-  triangles = computeContour3d' voxel Nothing level
+  triangles = computeContour3d' voxel (Just voxmax) level
 
 display :: Context -> DisplayCallback
 display context = do
