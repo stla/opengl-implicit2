@@ -1,5 +1,5 @@
 module MarchingCubes.MarchingCubes
-  (XYZ, Triangle, Voxel, marchingCubes, makeVoxel, computeContour3d')
+  (XYZ, Triangle, Voxel, marchingCubes, makeVoxel, computeContour3d', voxelMax)
   where
 import           Data.Array.Unboxed     (UArray, amap, array, bounds, elems,
                                          (!))
@@ -197,6 +197,9 @@ marchingCubes fun level xyzbounds subd = map (rescale xyzbounds) triangles
 type Voxel = (UArray (Int,Int,Int) Double,
               ((Double,Double),(Double,Double),(Double,Double)),
               (Int,Int,Int))
+
+voxelMax :: Voxel -> Double
+voxelMax (voxel, _, _) = maximum (elems voxel)
 
 makeVoxel :: ((Double,Double,Double) -> Double)
           -> ((Double,Double), (Double,Double), (Double,Double))

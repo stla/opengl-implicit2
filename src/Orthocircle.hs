@@ -93,8 +93,8 @@ keyboard rot1 rot2 rot3 a b l zoom c _ = do
     _   -> return ()
   postRedisplay Nothing
 
-idle :: IdleCallback
-idle = postRedisplay Nothing
+--idle :: IdleCallback
+--idle = postRedisplay Nothing
 
 main :: IO ()
 main = do

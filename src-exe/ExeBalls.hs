@@ -1,5 +1,5 @@
 module ExeBalls
   where
-import qualified Balls as B
+import qualified Balls_2 as B
 
 main = B.main

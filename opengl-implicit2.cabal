@@ -32,6 +32,7 @@ library
                      , BanchoffChmutov4
                      , Bretzel5_2
                      , Goursat_2
+                     , Balls_2
   build-depends:       base >= 4.7 && < 5
                      , extra
                      , OpenGL
